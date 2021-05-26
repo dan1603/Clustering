@@ -1,0 +1,61 @@
+before_script:
+ - chmod +x gradlew
+
+stages:
+ - build
+ - notify
+ - send
+
+build:
+ stage: build
+ script:
+   - ./gradlew assembleDebug
+ only:
+   refs:
+   - tags
+   variables:
+   - $CI_COMMIT_TAG =~ /build_.*/
+ artifacts:
+    paths:
+      - app/build/outputs/apk/debug/scaffold-debug.apk
+ tags:
+ - android
+
+notify_success:
+ stage: notify
+ script:
+ - python /home/gitlab-runner/rc-git-status.py $ROCKET_ROOM_ID ✅ $CI_PROJECT_NAME $CI_PROJECT_URL $CI_PIPELINE_ID $CI_COMMIT_REF_SLUG
+ only:
+   refs:
+   - tags
+   variables:
+   - $CI_COMMIT_TAG =~ /build_.*/
+ when: on_success
+ tags: 
+ - android
+
+notify_artifact:
+ stage: send
+ script:
+ - python /home/gitlab-runner/rc-sendapk.py $ROCKET_ROOM_ID "app/build/outputs/apk/debug/scaffold-debug.apk" scaffold_kotlin_mvvm_koin debug $CI_COMMIT_REF_SLUG
+ only:
+   refs:
+   - tags
+   variables:
+   - $CI_COMMIT_TAG =~ /build_.*/
+ when: on_success
+ tags:
+ - android
+
+notify_error:
+ stage: notify
+ script:
+ - python /home/gitlab-runner/rc-git-status.py $ROCKET_ROOM_ID ❌ $CI_PROJECT_NAME $CI_PROJECT_URL $CI_PIPELINE_ID $CI_COMMIT_REF_SLUG
+ only:
+   refs:
+   - tags
+   variables:
+   - $CI_COMMIT_TAG =~ /build_.*/
+ when: on_failure
+ tags: 
+ - android

@@ -1,0 +1,117 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+}
+
+apply from: '../dependencies.gradle'
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
+
+    defaultConfig {
+        applicationId "com.dmitriy.moroz.clusteringapp"
+        minSdkVersion 21
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            debuggable false
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            buildConfigField "String", "API", "\"${apiProduction}\""
+        }
+        debug {
+            debuggable true
+            minifyEnabled false
+
+            buildConfigField "String", "API", "\"${apiDevelopment}\""
+        }
+
+        applicationVariants.all { variant ->
+            variant.outputs.all { output ->
+                def filename = "scaffold-${variant.name}"
+                def abiVersion = "${output.getFilter(com.android.build.OutputFile.ABI)}"
+                if (abiVersion != "null") {
+                    filename += "-${abiVersion}"
+                }
+                filename += ".apk"
+                outputFileName = filename
+            }
+        }
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    api kotlin.stdlib
+
+    // AndroidX
+    api androidx.core
+    api androidx.appcompat
+    api androidx.constraintlayout
+    api androidx.multidex
+    api androidx.legacy
+    api androidx.browser
+    api androidx.recyclerview
+    api androidx.cardview
+    api androidx.annotation
+
+    // Lifecycle
+    api lifecycle.extensions
+    api lifecycle.common
+
+    // Google Libraries
+    api google.material
+    api google.maps
+    api google.maps_utils
+    api google.location
+
+    // DI
+    api koin.main
+    api koin.scope
+    api koin.vm
+    api koin.ext
+
+    // ReactiveX
+    api reactivex.rxkotlin
+    api reactivex.rxandroid
+    api reactivex.rxjava
+
+    // Room
+    api room.runtime
+    api room.rxjava2
+    kapt room.compiler
+
+    // Networking
+    api retrofit.retrofit2
+    api retrofit.gson
+    api retrofit.moshi
+    api retrofit.rxjava
+    api okhttp.interceptor
+    api google.gson
+
+    // Tests
+    testImplementation test.junit
+    androidTestImplementation test.junit_ext
+    androidTestImplementation test.espresso
+}
