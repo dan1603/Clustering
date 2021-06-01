@@ -1,6 +1,7 @@
 package com.dmitriy.moroz.clusteringapp.domain
 
 import com.dmitriy.moroz.clusteringapp.base.BaseViewModel
+import com.dmitriy.moroz.clusteringapp.database.entity.PinEntity
 import com.dmitriy.moroz.clusteringapp.usecases.cluster.ClusterFlow
 import com.dmitriy.moroz.clusteringapp.utils.RxTransformers
 import com.dmitriy.moroz.clusteringapp.utils.SingleLiveEvent
@@ -12,7 +13,7 @@ class ClusterViewModel(
     private val rx: RxTransformers
 ) : BaseViewModel() {
 
-    val pins = SingleLiveEvent<List<Pair<String, LatLng>>>()
+    val pins = SingleLiveEvent<List<PinEntity>>()
 
     init {
         flow.getPins()
@@ -25,8 +26,11 @@ class ClusterViewModel(
 
     fun fetchPins() = flow.fetchPins()
         .compose(rx.fetchingCompletableTransformer())
-        .subscribe({
-            print("FETCH")
-        }, Throwable::printStackTrace)
+        .subscribe({ }, Throwable::printStackTrace)
+        .toDisposable()
+
+    fun selectPin(lat: Double, lng: Double) = flow.selectPin(lat, lng)
+        .compose(rx.fetchingCompletableTransformer())
+        .subscribe({ }, Throwable::printStackTrace)
         .toDisposable()
 }

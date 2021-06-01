@@ -10,14 +10,26 @@ import io.reactivex.Single
 @Dao
 interface PinDao {
 
-    @Query("SELECT * FROM ${Constants.Db.PIN}")
+    @Query("SELECT * FROM ${Constants.Db.PIN} ORDER BY isSelected DESC")
     fun queryFlow(): Flowable<List<PinEntity>>
+
+    @Query("SELECT * FROM ${Constants.Db.PIN} WHERE isSelected = 1 LIMIT 1")
+    fun querySelected(): Flowable<PinEntity>
 
     @Query("SELECT * FROM ${Constants.Db.PIN}")
     fun queryAll(): Single<List<PinEntity>>
 
     @Query("SELECT * FROM ${Constants.Db.PIN} WHERE id = :key")
     fun queryById(key: Int): Single<PinEntity>
+
+    @Query("SELECT id FROM ${Constants.Db.PIN} WHERE lat = :latitude AND lng = :longitude LIMIT 1")
+    fun queryIdByCoordinates(latitude: Double, longitude: Double): Single<String>
+
+    @Query("UPDATE ${Constants.Db.PIN} SET isSelected = CASE id WHEN :pinId THEN 1 ELSE 0 END")
+    fun selectById(pinId: String) : Completable
+
+    @Query("UPDATE ${Constants.Db.PIN} SET isSelected = 0")
+    fun deselectAll(): Completable
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertList(list: List<PinEntity>) : Completable

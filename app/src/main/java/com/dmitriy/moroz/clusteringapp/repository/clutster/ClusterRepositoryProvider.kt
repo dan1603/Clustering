@@ -11,12 +11,23 @@ class ClusterRepositoryProvider(
     private val db: AppDatabase
 ) : ClusterRepository {
 
-    override fun fetchPins(): Completable = db.pinDao().deleteAll()
+    override fun fetchPins(): Completable = db
+        .pinDao()
+        .deleteAll()
         .andThen(dataSource.getClusterItems())
         .flatMapCompletable(db.pinDao()::insertList)
 
     override fun getPins(): Flowable<List<PinEntity>> = db
         .pinDao()
         .queryFlow()
+
+    override fun getSelectedPin(): Flowable<PinEntity> = db
+        .pinDao()
+        .querySelected()
+
+    override fun selectPin(lat: Double, lng: Double): Completable = db
+        .pinDao()
+        .queryIdByCoordinates(lat, lng)
+        .flatMapCompletable(db.pinDao()::selectById)
 
 }

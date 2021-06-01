@@ -8,4 +8,8 @@ interface ClusterRepository {
     fun fetchPins() : Completable
 
     fun getPins() : Flowable<List<PinEntity>>
+
+    fun getSelectedPin() : Flowable<PinEntity>
+
+    fun selectPin(lat: Double, lng: Double) : Completable
 }

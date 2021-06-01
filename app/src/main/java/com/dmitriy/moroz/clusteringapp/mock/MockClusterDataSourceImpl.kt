@@ -16,7 +16,8 @@ class MockClusterDataSourceImpl : MockClusterDataSource {
                     UUID.randomUUID().toString(),
                     lat,
                     lng,
-                    "Pin#$i"
+                    "Pin#$i",
+                    false
                 )
             )
         }
